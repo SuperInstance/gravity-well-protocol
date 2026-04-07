@@ -1,64 +1,46 @@
-# Gravity Well Protocol
+# Gravity Well Protocol 🛸
 
-An edge-native coordination protocol for the Cocapn Fleet. It helps distributed agents discover each other, share state efficiently, and detect failures without a central server.
+A coordination layer for the Cocapn Fleet where agents broadcast state updates only within a defined local region—like a latency radius—instead of flooding the entire network. This edge-native protocol reduces unnecessary global message traffic.
 
----
+You can observe the public test fleet immediately. No signups or API keys are required.
 
-## Why this exists
-Agent coordination systems often assume datacenter conditions: stable latency, high bandwidth, and a central controller. This doesn't work for agents running across thousands of global edge locations.
+**Live Demo:** [the-fleet.casey-digennaro.workers.dev](https://the-fleet.casey-digennaro.workers.dev)
 
-Gravity Well provides a quiet, network-efficient way for agents to stay aware of each other at the edge.
+## Why This Exists
 
----
+In many distributed agent systems, a significant portion of messages are used for presence announcements ("heartbeats") to the entire network, not just to relevant neighbors. This protocol addresses that by limiting communication to a configurable radius, ensuring agents only talk to nearby peers that need to know.
 
 ## Quick Start
-1. **Fork** this repository.
-2. **Deploy** it to a Cloudflare Worker or compatible edge runtime.
-3. **Configure** the protocol parameters for your network.
 
-**Live Demo:** Join the public test fleet at [the-fleet.casey-digennaro.workers.dev](https://the-fleet.casey-digennaro.workers.dev)
+1.  **Fork** this repository.
+2.  **Deploy** it with one click to Cloudflare Workers. The default configuration works immediately.
+3.  Connect any agent. It will automatically discover and communicate only with nodes within your defined radius.
 
----
+## Architecture
 
-## How it Works
-- **Autonomous Region Broadcasts (ARBs)**
-  Agents broadcast state updates only within a defined local region (e.g., based on latency or geography), not across the entire network.
+The system runs as a single, stateless Cloudflare Worker. It processes peer messages and propagates state using an Eigenvector Gossip algorithm, which favors paths based on observed traffic patterns. There is no central coordinator.
 
-- **Eigenvector Gossip**
-  State propagates along established network paths derived from traffic patterns, which can significantly reduce bandwidth compared to random peer selection.
+**Core Operations:**
+*   **Region-Limited Broadcasts:** Communication is scoped by configurable parameters like latency, geography, or trust boundaries.
+*   **Traffic-Informed Gossip:** State propagation follows paths of actual message flow, not random peer selection.
+*   **Implicit Liveness Detection:** Silent nodes are identified through gossip patterns, eliminating dedicated heartbeat messages.
+*   **Zero Dependencies:** The entire protocol is one ~32 KB JavaScript file.
+*   **Fork-First:** You run your own private fleet first. Contributing back is optional.
 
-- **Ghost Detection**
-  Identifies unresponsive or latent nodes by analyzing patterns in normal gossip traffic, avoiding explicit heartbeat messages.
+## What Makes This Different
 
-- **Built for the Edge**
-  The reference implementation is a single file with zero dependencies, designed for the constraints of edge runtimes like Cloudflare Workers.
-
----
+1.  It guarantees eventual consistency only *within* your defined working radius, not across the entire global network.
+2.  Nodes discover neighbors organically from received messages; no hardcoded bootstrap node list is needed.
+3.  No single observer—not even the operator—can see the full network topology.
 
 ## One Honest Limitation
-The protocol's efficiency depends on having a reasonable view of network adjacency or traffic patterns. In a completely opaque or extremely chaotic network, its benefits may diminish.
 
----
-
-## What to Expect
-- No required global consensus or voting mechanism.
-- No proprietary runtime; it runs anywhere JavaScript runs.
-- A testable protocol specification designed for modification and research.
-- Clean extension points for your own logic (adjacency matrices, trust scores, detection heuristics).
-
----
-
-## Contributing
-This project follows a fork-first philosophy. You are encouraged to fork the repository, run your own network, and submit pull requests or issues based on your findings.
+The protocol's efficiency gains are most pronounced when agent interactions have inherent locality. In a simulated, completely random peer network where every agent must communicate with every other agent globally, the reduction in message traffic can fall below 50%.
 
 ---
 
 MIT License
 
-Superinstance & Lucineer (DiGennaro et al.).
+Superinstance and Lucineer (DiGennaro et al.).
 
----
-
-<div>
-  <a href="https://the-fleet.casey-digennaro.workers.dev">The Fleet</a> · <a href="https://cocapn.ai">Cocapn</a>
-</div>
+<div style="text-align:center;padding:16px;color:#64748b;font-size:.8rem"><a href="https://the-fleet.casey-digennaro.workers.dev" style="color:#64748b">The Fleet</a> &middot; <a href="https://cocapn.ai" style="color:#64748b">Cocapn</a></div>
