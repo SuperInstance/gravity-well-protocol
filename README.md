@@ -54,7 +54,7 @@
 *   🔮 **Fork-First:** The intended workflow is to run your own private
     fleet first; contributing back is optional.
 
-## What Makes This Different
+## Design Properties
 
 ✅ 1. It guarantees eventual consistency only *within* your defined working
       radius, not across the entire global network.
@@ -69,6 +69,21 @@
    interactions have inherent locality. In a simulated, completely random
    peer network where every agent must communicate with every other agent
    globally, the reduction in message traffic can fall below 50%.
+
+## Related Repositories
+
+*   [fleet-conductor](https://github.com/SuperInstance/fleet-conductor) —
+    In-memory fleet orchestration core (agent state machine, conservation
+    guard, reconcile loop); gravity-well-protocol would scope the
+    inter-agent messages that conductor coordinates.
+*   [fleet-midi](https://github.com/SuperInstance/fleet-midi) —
+    Fleet event-bus and binary message codec; a concrete message-routing
+    layer whose traffic patterns this protocol's region-scoping design
+    is meant to complement.
+*   [nexus-edge-runtime](https://github.com/SuperInstance/nexus-edge-runtime) —
+    Edge-native runtime with fleet coordination, sensor fusion, and
+    navigation modules; shares the edge-first deployment model this
+    protocol targets.
 
 ---
 
